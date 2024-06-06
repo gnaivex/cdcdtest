@@ -23,8 +23,6 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download && go mod tidy && go mod verify
 
-COPY .devops .
-
 RUN go build -o bin/api ./cmd/api
 
 FROM gcr.io/distroless/static-debian11
