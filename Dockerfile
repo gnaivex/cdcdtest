@@ -6,6 +6,8 @@ RUN apt update && apt install -y ca-certificates git-core ssh
 RUN touch ~/.ssh/known_hosts
 RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
+ARG GITHUB_TOKEN
+
 # allow private repo pull
 RUN git config --global url."https://${GITHUB_TOKEN}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
 
