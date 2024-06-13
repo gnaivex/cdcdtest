@@ -8,9 +8,7 @@ RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
 
 ARG GITHUB_TOKEN
 
-RUN echo "GH TOKEN"
-RUN echo ${GITHUB_TOKEN}
-RUN echo "https://${GITHUB_TOKEN}:x-oauth-basic@github.com/"
+RUN echo Your container args are: "$@"
 
 # allow private repo pull
 RUN git config --global url."https://${GITHUB_TOKEN}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
