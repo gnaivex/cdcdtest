@@ -10,6 +10,8 @@ ARG GITHUB_TOKEN
 
 RUN echo Your container args are: "$@"
 
+RUN echo ${GITHUB_REF}
+
 # allow private repo pull
 RUN git config --global url."https://${GITHUB_TOKEN}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
 
