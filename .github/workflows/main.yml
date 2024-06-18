@@ -41,6 +41,8 @@ jobs:
       - run: |-
           gcloud --quiet auth configure-docker
 
+      - run: echo "$GH_TOKEN"
+
       # Build the Docker image
       - name: Build
         run: |-
@@ -50,7 +52,6 @@ jobs:
             --build-arg GITHUB_REF="$GITHUB_REF" \
             --build-arg GITHUB_TOKEN="$GH_TOKEN" \
             .
-      - run: echo "$GH_TOKEN"
 
       # Push the Docker image to Google Container Registry
       - name: Publish
