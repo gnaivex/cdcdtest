@@ -1,4 +1,4 @@
-name: Build and Deploy to GKE
+name: Build and Deploy to AWS
 
 on:
   push:
@@ -38,5 +38,5 @@ jobs:
           ECR_REPOSITORY: ${{secrets.ECR_REPOSITORY_URI}}
           IMAGE_TAG: ${{secrets.ECR_BUILD_TAG}}
         run: |
-          docker build -t gnaivexpt .
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
