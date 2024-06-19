@@ -37,5 +37,6 @@ jobs:
           ECR_REPOSITORY: ${{secrets.ECR_REPOSITORY_URI}}
           IMAGE_TAG: latest
         run: |
-          docker build -t gnaivexpt/cdcdtest:latest .
-          docker push gnaivexpt/cdcdtest:latest
+          docker build -t gnaivexpt .
+          docker tag gnaivexpt:latest public.ecr.aws/k8q8m1s5/gnaivexpt:latest
+          docker push public.ecr.aws/k8q8m1s5/gnaivexpt:latest
