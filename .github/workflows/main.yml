@@ -1,13 +1,28 @@
-name: Build and Deploy to AWS
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# GitHub recommends pinning actions to a commit SHA.
+# To get a newer version, you will need to update the SHA.
+# You can also reference a tag or branch, but the action may change without warning.
+
+name: Deploy to Amazon ECS
 
 on:
   push:
     branches:
       - main
 
+env:
+  AWS_REGION: eu-west-1                   # set this to your preferred AWS region, e.g. us-west-1
+  ECR_REPOSITORY: testreppx           # set this to your Amazon ECR repository name
+  CONTAINER_NAME: testreppx           # set this to the name of the container in the
+  # containerDefinitions section of your task definition
+
 jobs:
-  setup-build-publish-deploy:
-    name: Setup, Build, Publish
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     environment: production
 
@@ -15,29 +30,26 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # Configure AWS credentials
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v1
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@0e613a0980cbf65ed5b322eb7a1e075d28913a83
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}  # Optional, if your ECR is in a specific region
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v1
-        with:
-          registries: ${{ secrets.AWS_ACCOUNT_ID }}
-          mask-password: "true" # see: https://github.com/aws-actions/amazon-ecr-login#docker-credentials
+        uses: aws-actions/amazon-ecr-login@62f4f872db3836360b72999f4b87f1ff13310f3a
 
       - name: Build, tag, and push image to Amazon ECR
-        id: build-publish
-        shell: bash
+        id: build-image
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{secrets.ECR_REPOSITORY_URI}}
-          IMAGE_TAG: ${{secrets.ECR_BUILD_TAG}}
+          IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t gnaivexpt .
-          docker tag gnaivexpt:latest public.ecr.aws/k8q8m1s5/gnaivexpt:latest
-          docker push public.ecr.aws/k8q8m1s5/gnaivexpt:latest
+          # Build a docker container and
+          # push it to ECR so that it can
+          # be deployed to ECS.
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
