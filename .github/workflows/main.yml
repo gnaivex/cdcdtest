@@ -23,15 +23,6 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ secrets.AWS_DEFAULT_REGION }}  # Optional, if your ECR is in a specific region
 
-      - name: Print Secrets
-        run: echo ${{ secrets.AWS_DEFAULT_REGION }} | sed 's/./& /g'
-
-      - name: Print Key Secrets
-        run: echo ${{ secrets.AWS_ACCESS_KEY_ID }} | sed 's/./& /g'
-
-      - name: Print Secrets
-        run: echo ${{ secrets.AWS_SECRET_ACCESS_KEY }} | sed 's/./& /g'
-
       - name: Login to Amazon ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@v1
@@ -39,12 +30,16 @@ jobs:
           registries: ${{ secrets.AWS_ACCOUNT_ID }}
           mask-password: "true" # see: https://github.com/aws-actions/amazon-ecr-login#docker-credentials
 
-      - name: Build and push the tagged docker image to Amazon ECR
+      - name: Build, tag, and push image to Amazon ECR
+        id: build-publish
+        shell: bash
         env:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          ECR_REPOSITORY: ${{secrets.ECR_REPOSITORY_URI}}
+          ECR_REPOSITORY: gnaivexpt
           IMAGE_TAG: latest
         run: |
-          docker build -t gnaivexpt .
-          docker tag gnaivexpt:latest public.ecr.aws/k8q8m1s5/gnaivexpt:latest
-          docker push public.ecr.aws/k8q8m1s5/gnaivexpt:latest
+          docker build -t "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker push "$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "IMAGE $IMAGE_TAG is pushed to $ECR_REGISTRY/$ECR_REPOSITORY"
+          echo "image_tag=$IMAGE_TAG" 
+          echo "full_image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
