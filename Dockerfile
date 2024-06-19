@@ -2,19 +2,6 @@ FROM golang:1.22 AS build
 
 RUN apt update && apt install -y ca-certificates git-core ssh
 
-# create ssh directory
-RUN touch ~/.ssh/known_hosts
-RUN ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
-
-ARG GITHUB_TOKEN
-
-RUN echo Your container args are: "$@"
-
-RUN echo ${GITHUB_REF}
-
-# allow private repo pull
-RUN git config --global url."https://${GITHUB_TOKEN}:x-oauth-basic@github.com/".insteadOf "https://github.com/"
-
 ARG CGO_ENABLED=0
 ENV CGO_ENABLED=${CGO_ENABLED}
 
